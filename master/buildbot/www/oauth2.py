@@ -31,6 +31,7 @@ from twisted.internet import defer
 from twisted.internet import threads
 
 from buildbot import config
+from buildbot.process.properties import Properties
 from buildbot.util import bytes2unicode
 from buildbot.util.logger import Logger
 from buildbot.www import auth
@@ -91,8 +92,10 @@ class OAuth2Auth(auth.AuthBase):
     def __init__(self,
                  clientId, clientSecret, autologin=False, **kwargs):
         auth.AuthBase.__init__(self, **kwargs)
+        p = Properties()
+        p.master = self.master
         self.clientId = clientId
-        self.clientSecret = clientSecret
+        self.clientSecret = yield p.render(clientSecret)
         self.autologin = autologin
 
     def reconfigAuth(self, master, new_config):
